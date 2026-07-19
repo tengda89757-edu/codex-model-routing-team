@@ -1,5 +1,5 @@
-> [!IMPORTANT]
-> This repository is a generated compatibility mirror. The editable source, Issues, and contributions live in [zjp1997720/zhijian-skills](https://github.com/zjp1997720/zhijian-skills/tree/main/skills/codex-model-routing-team).
+> [!NOTE]
+> 本维护分支基于 [zjp1997720/zhijian-skills](https://github.com/zjp1997720/zhijian-skills/tree/main/skills/codex-model-routing-team) 的原始实现，并采用更新后的模型路由策略。
 
 # Codex 模型路由团队
 
@@ -9,7 +9,7 @@
 
 <p align="center"><strong>主 Agent 负责规划、集成和验收；复杂工作交给分别指定模型与推理强度的独立后台任务。</strong></p>
 
-<p align="center"><a href="./README.md">English</a> · <a href="https://github.com/zjp1997720/zhijian-skills/tree/main/skills/codex-model-routing-team">统一源码</a> · <a href="https://github.com/zjp1997720/codex-model-routing-team">独立镜像</a></p>
+<p align="center"><a href="./README.md">English</a> · <a href="https://github.com/zjp1997720/zhijian-skills/tree/main/skills/codex-model-routing-team">原始上游</a></p>
 
 适合复杂并行任务：主 Agent 负责规划、文件所有权和集成，独立后台任务按明确模型与推理强度执行。
 
@@ -18,20 +18,20 @@
 这条常用简写是 `skills` CLI 的正确语法：
 
 ```bash
-npx skills add zjp1997720/codex-model-routing-team
+npx skills add tengda89757-edu/codex-model-routing-team
 ```
 
 推荐用下面的命令全局安装到 Codex，并复制真实文件而不是创建软链接：
 
 ```bash
-npx skills add zjp1997720/codex-model-routing-team \
+npx skills add tengda89757-edu/codex-model-routing-team \
   -g -a codex --skill codex-model-routing-team --copy -y
 ```
 
 完整 GitHub 链接同样有效：
 
 ```bash
-npx skills add https://github.com/zjp1997720/codex-model-routing-team
+npx skills add https://github.com/tengda89757-edu/codex-model-routing-team
 ```
 
 安装后检查入口文件和配套策略是否齐全：
@@ -59,7 +59,7 @@ find ~/.agents/skills/codex-model-routing-team -maxdepth 2 -type f | sort
 - 用户长期授权 Codex 在复杂、可并行任务中自动使用 `$codex-model-routing-team` 创建独立后台任务，并为其指定模型与推理强度；派遣前用一条简短通知说明数量、模型、强度和职责，无需再次确认。
 - 主 Agent 保持当前模型，负责规划、文件所有权、集成、验证和最终交付。
 - 同时运行最多 6 个后台任务；单个根任务累计最多创建 8 个。后台任务不得再创建任何后台任务或子 Agent。
-- 后台任务禁止使用 Ultra；Terra 默认不参与路由。无法使用 Codex App 后台任务接口时，主 Agent 本地完成，禁止回退到 MultiAgentV2 `spawn_agent` 冒充模型路由。
+- 后台任务禁止使用 Ultra；默认 Worker 使用 `GPT-5.6-Terra / Max`，关键任务与升级使用 `GPT-5.6-Sol / Max`，Luna 仅用于边界明确的专项路由。无法使用 Codex App 后台任务接口时，主 Agent 本地完成，禁止回退到 MultiAgentV2 `spawn_agent` 冒充模型路由。
 - 简单问答、状态查询、单文件小改、强顺序任务以及发布、发送、付款、删除、账户或生产操作不自动派遣。
 ```
 
@@ -74,7 +74,7 @@ Codex 原生 MultiAgentV2 当前没有暴露按 Worker 选择模型和推理强�
 ## 主要能力
 
 - 只路由真正复杂且可并行的任务，例如多来源调研、多章节内容、复杂 Skill 或 PPT、跨模块开发和独立验证。
-- 默认围绕 Sol 与 Luna 路由，禁止 Ultra；Terra 默认不参加自动路由，除非用户明确要求或任务证据支持。
+- 默认 Worker 使用 Terra Max，关键任务与升级使用 Sol Max；Luna 仅保留给边界明确的专项路由，并始终禁止 Ultra。
 - 每波最多新增 3 个任务，同时运行最多 6 个，单个根任务累计最多 8 个。
 - 首个任务充当健康探针；每个任务都要验证已经真实创建；后台任务禁止继续派生任务；只归档已完成且结果被采纳的任务。
 - 可以作为 Deep Research 等上游 Skill 的 Thread Orchestrator，保留上游流程、阶段门、产物和质量标准。
@@ -125,15 +125,15 @@ Deep Research 默认预算为 `2-4 个 researcher + 1 个 verifier + 1 个 revie
 │       ├── SKILL.md
 │       ├── agents/
 │       ├── evals/
-│       └── references/
-└── tests/
+│       ├── references/
+│       └── tests/
 ```
 
 Agent 的完整工作流见 [SKILL.md](skills/codex-model-routing-team/SKILL.md)，配套策略见 [references](skills/codex-model-routing-team/references/)。
 
 ## 验证情况
 
-工作流已经在独立调研任务和绑定工作区的写入任务中完成实测，覆盖模型与推理强度核验、结果读取、失败处理和串行归档。发布包还会在隔离环境中执行一次真实的 `npx skills` 安装，确认配套文件被完整复制。
+工作流已经在独立调研任务和绑定工作区的写入任务中完成实测，覆盖模型与推理强度核验、结果读取、失败处理和串行归档。新增的可执行契约测试会检查默认路由、任务上限、上游阶段顺序、项目绑定和审计字段。发布包还会在隔离环境中执行一次真实的 `npx skills` 安装，确认配套文件被完整复制。
 
 ## 许可证
 

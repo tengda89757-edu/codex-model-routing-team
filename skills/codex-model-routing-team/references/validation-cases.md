@@ -17,6 +17,8 @@
 ## 运行断言
 
 - 派遣前显示 Worker 数量、模型、thinking 和任务。
+- 默认 Worker 使用 `gpt-5.6-terra / max`，关键任务与升级使用 `gpt-5.6-sol / max`；不得继续使用 `gpt-5.6-luna / xhigh` 或 `gpt-5.6-sol / high`。
+- Luna 仅用于路由策略列出的非默认专项任务。
 - 第一个真实 Worker 先通过实体化健康检查；通过后每波最多新增 3 个任务。
 - 所有提示词含完整任务包与禁止下级委派。
 - 同时运行不超过 6，累计创建不超过 8，任何 Worker 都不使用 Ultra。

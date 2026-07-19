@@ -19,24 +19,23 @@
 | 路由名 | `model` | `thinking` | 适用工作 |
 | --- | --- | --- | --- |
 | Luna High | `gpt-5.6-luna` | `high` | 机械提取、格式整理、分类、简单验证 |
-| Luna X High | `gpt-5.6-luna` | `xhigh` | 默认 Worker；调研、初稿、方案扩展、常规编码与审查 |
 | Luna Max | `gpt-5.6-luna` | `max` | 边界清晰、难度高、时效不敏感的深度执行 |
-| Sol High | `gpt-5.6-sol` | `high` | 高歧义规划、架构、困难调试、高风险判断、关键审查 |
-| Sol X High | `gpt-5.6-sol` | `xhigh` | 需要更深推理的关键审查与方案裁决 |
-| Sol Max | `gpt-5.6-sol` | `max` | 主 Agent 有明确质量理由的最高强度单任务，必须说明升级原因 |
+| Terra Max | `gpt-5.6-terra` | `max` | 默认 Worker；调研、初稿、方案扩展、常规编码与审查 |
+| Sol X High | `gpt-5.6-sol` | `xhigh` | 非默认的关键审查与方案裁决；只在明确时延约束下使用 |
+| Sol Max | `gpt-5.6-sol` | `max` | 默认关键任务与升级路由；高歧义规划、架构、困难调试、高风险判断和关键审查 |
 
-自动路由只允许 `gpt-5.6-luna` 与 `gpt-5.6-sol`。禁止因工具元数据遗漏这两个模型而改用旧模型；运行时拒绝 Luna / Sol 时停止并报告冲突。
+默认路由组合是 `gpt-5.6-terra / max` 与 `gpt-5.6-sol / max`。`gpt-5.6-luna` 仅保留 Luna High 和 Luna Max 两个专项路由，不再作为默认 Worker；禁止继续使用已被替换的 `gpt-5.6-luna / xhigh` 与 `gpt-5.6-sol / high`。禁止因工具元数据遗漏策略选定模型而改用旧模型；运行时拒绝 Terra、Sol 或专项 Luna 时停止并报告冲突。
 
-Terra 默认关闭。Ultra 永久禁止，因为它会引入不可控的下级 Agent 扩张。不得把成本比例写成未经验证的固定事实。
+Ultra 永久禁止，因为它会引入不可控的下级 Agent 扩张。不得把成本比例写成未经验证的固定事实。
 
 ## 数量与失败升级
 
 - 并发上限 6；累计创建上限 8，替换任务也计数。
 - 创建前计算 `planned_workers + reserved_slots <= 8`。reserved slots 用于上游后续阶段和失败恢复，不能被前期并行任务占用。
 - Deep Research 默认预算为 `2-4 researcher + 1 verifier + 1 reviewer + 2 retry reserve`。需要 5-6 个 researcher 时必须显式减少重试预留，禁止挤掉验证阶段。
-- 同一子任务先追问一次，再进行一次模型/推理升级或主 Agent 接管。
+- 同一子任务先追问一次；Terra 或专项 Luna 任务最多再切换一次到 Sol Max。Sol Max 任务失败后由主 Agent 接管；只有上游明确要求独立复审时才可使用 retry reserve 新建一次 Sol Max。
 - 同一子任务最多两次执行机会，禁止无条件重复创建。
-- 主 Agent 可自由组合 Sol 与 Luna，不设置僵硬配额。
+- 主 Agent 可自由组合默认的 Terra Max、Sol Max 与专项 Luna，不设置僵硬配额。
 
 ## 工作区与冲突
 

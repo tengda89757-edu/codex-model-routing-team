@@ -1,5 +1,5 @@
-> [!IMPORTANT]
-> This repository is a generated compatibility mirror. The editable source, Issues, and contributions live in [zjp1997720/zhijian-skills](https://github.com/zjp1997720/zhijian-skills/tree/main/skills/codex-model-routing-team).
+> [!NOTE]
+> This maintained fork is based on the original [zjp1997720/zhijian-skills](https://github.com/zjp1997720/zhijian-skills/tree/main/skills/codex-model-routing-team) implementation and carries an updated model-routing policy.
 
 # Codex Model Routing Team
 
@@ -9,7 +9,7 @@
 
 <p align="center"><strong>Give Codex a bounded team of model-routed background tasks while one lead keeps control of planning, integration, and verification.</strong></p>
 
-<p align="center"><a href="./README.zh-CN.md">简体中文</a> · <a href="https://github.com/zjp1997720/zhijian-skills/tree/main/skills/codex-model-routing-team">Canonical source</a> · <a href="https://github.com/zjp1997720/codex-model-routing-team">Standalone mirror</a></p>
+<p align="center"><a href="./README.zh-CN.md">简体中文</a> · <a href="https://github.com/zjp1997720/zhijian-skills/tree/main/skills/codex-model-routing-team">Original upstream</a></p>
 
 Use it for complex parallel work when one lead Agent should plan and integrate while bounded background tasks run on explicitly chosen models.
 
@@ -18,20 +18,20 @@ Use it for complex parallel work when one lead Agent should plan and integrate w
 The standard `skills` CLI shorthand is valid:
 
 ```bash
-npx skills add zjp1997720/codex-model-routing-team
+npx skills add tengda89757-edu/codex-model-routing-team
 ```
 
 For a global Codex installation without symlinks:
 
 ```bash
-npx skills add zjp1997720/codex-model-routing-team \
+npx skills add tengda89757-edu/codex-model-routing-team \
   -g -a codex --skill codex-model-routing-team --copy -y
 ```
 
 The full GitHub URL works too:
 
 ```bash
-npx skills add https://github.com/zjp1997720/codex-model-routing-team
+npx skills add https://github.com/tengda89757-edu/codex-model-routing-team
 ```
 
 Verify that the installed package contains both the entrypoint and its supporting policies:
@@ -59,7 +59,7 @@ To let Codex activate the Skill automatically for suitable complex work, add the
 - The user authorizes Codex to use `$codex-model-routing-team` automatically for complex, parallelizable tasks, create independent background tasks, and assign a model and reasoning level to each task. Before dispatch, briefly state the number of tasks, model, reasoning level, and responsibility. No additional confirmation is required.
 - The lead agent keeps its current model and owns planning, file ownership, integration, verification, and final delivery.
 - Run at most 6 background tasks concurrently and create at most 8 for one root task. Background tasks must not create more background tasks or subagents.
-- Background tasks must not use Ultra. Terra is excluded from automatic routing by default. If Codex App background-task tools are unavailable, complete the work locally and do not use MultiAgentV2 `spawn_agent` as a substitute for model routing.
+- Background tasks must not use Ultra. Use `GPT-5.6-Terra / Max` for default workers and `GPT-5.6-Sol / Max` for critical work and escalation; reserve Luna for explicitly scoped specialist routes. If Codex App background-task tools are unavailable, complete the work locally and do not use MultiAgentV2 `spawn_agent` as a substitute for model routing.
 - Do not auto-dispatch simple questions, status checks, small single-file edits, strongly sequential work, publishing, sending, payment, deletion, account, or production operations.
 ```
 
@@ -74,7 +74,7 @@ This Skill uses Codex App background tasks instead. The lead agent plans the wor
 ## What it does
 
 - Routes only complex, genuinely parallel work such as multi-source research, multi-section content, large Skills or decks, and independent engineering workstreams.
-- Uses Sol and Luna as the default routes, prohibits Ultra, and keeps Terra out of automatic routing unless evidence or the user calls for it.
+- Uses Terra Max for default workers and Sol Max for critical work and escalation, while retaining Luna only for explicitly scoped specialist routes; Ultra remains prohibited.
 - Limits fan-out to three new tasks per wave, six concurrent tasks, and eight total tasks per root request.
 - Treats the first real task as a health probe, verifies every created task, prevents descendants, and archives only completed tasks whose results were adopted.
 - Acts as a Thread Orchestrator for upstream workflows such as Deep Research while preserving their stages, artifacts, and quality gates.
@@ -125,15 +125,15 @@ Use $codex-model-routing-team as the Thread Orchestrator for $deep-research. Pre
 │       ├── SKILL.md
 │       ├── agents/
 │       ├── evals/
-│       └── references/
-└── tests/
+│       ├── references/
+│       └── tests/
 ```
 
 The agent workflow lives in [SKILL.md](skills/codex-model-routing-team/SKILL.md). Supporting policies live in [references](skills/codex-model-routing-team/references/).
 
 ## Validation
 
-The workflow has been tested with projectless research tasks and project-bound workspace tasks, including model/reasoning verification, result collection, failure handling, and serial archival. The release is also tested through an isolated `npx skills` installation to confirm that supporting files are copied.
+The workflow has been tested with projectless research tasks and project-bound workspace tasks, including model/reasoning verification, result collection, failure handling, and serial archival. Executable contract tests verify routing defaults, task caps, upstream stage ordering, project binding, and audit fields. The release is also tested through an isolated `npx skills` installation to confirm that supporting files are copied.
 
 ## License
 

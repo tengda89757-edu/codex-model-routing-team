@@ -22,22 +22,22 @@ description: 在 Codex App 中为复杂、可并行的知识工作或编程任�
 1. 检查当前指令中是否存在用户对后台任务和模型路由的明确授权。全局 `AGENTS.md` 的长期授权有效；没有授权就留在主任务内完成。
 2. 读取 [路由策略](references/routing-policy.md)。独立任务由本 Skill 判断并行收益；上游 Skill 模式直接采用上游 Scale 和任务包，只施加安全上限。
 3. 选择模式：默认轻量路由；满足长期、正式交付、可恢复或高风险条件时，读取 [耐久模式](references/durable-mode.md)。上游已有任务账本时复用上游状态。
-4. 先显示一条简短派遣通知：任务数、每个任务的 `GPT-5.6-Luna` / `GPT-5.6-Sol` 路由、推理强度、职责，以及为后续阶段和重试预留的累计额度。
+4. 先显示一条简短派遣通知：任务数、每个任务的默认 `GPT-5.6-Terra / Max` 或关键任务 `GPT-5.6-Sol / Max` 路由、职责，以及为后续阶段和重试预留的累计额度；采用专项 Luna 路由时单独标注。
 5. 读取 [任务包模板](references/task-packet.md)，为每个 Worker 写完整提示词。提示词必须包含“禁止创建任何后台任务或子 Agent”。
 6. 读取 [任务生命周期](references/thread-lifecycle.md)。用 `codex_app__list_projects` 定位项目；任何声明工作区输出路径的任务都使用匹配 project local，只有纯聊天交付才能 projectless。用 `codex_app__create_thread` 显式传入路由策略规定的 `model` 与 `thinking`。
 7. 把第一个真实 Worker 当作健康探针：创建后立即用 `codex_app__read_thread` 验证它已经实体化。只有读到真实 thread、cwd 与 turn 状态后，才记录为已创建并继续派遣。首个创建超时或返回未实体化状态时停止整批派遣，禁止改用 projectless 重试同一故障。
 8. 健康探针通过后，每波最多再创建 3 个；运行并发最多 6 个，单个根任务累计最多创建 8 个。创建前扣除上游后续阶段和重试的 reserved slots。按文件、模块、章节或主题分配互斥所有权；同一文件同一时刻只允许一个写入者。
-9. 用 `codex_app__read_thread` 读取结果。信息不足时只在原任务中用 `codex_app__send_message_to_thread` 追问一次；随后升级推理、切换模型或由主 Agent 接管。每个子任务最多两次执行机会。
+9. 用 `codex_app__read_thread` 读取结果。信息不足时只在原任务中用 `codex_app__send_message_to_thread` 追问一次；随后按路由策略切换到 `GPT-5.6-Sol / Max` 或由主 Agent 接管。每个子任务最多两次执行机会。
 10. 主 Agent 亲自核对事实、运行验证、处理冲突并整合最终交付。只对已实体化、状态为 completed/idle、输出文件已经验证、且结果已采纳的轻量任务调用 `codex_app__set_thread_archived`；逐个归档并等待每次确认。失败、争议或待审任务保留。
 11. 每次创建成功后立即记录 `thread_id / role / model / thinking`；验收与归档后补充 `status / output / archived`。最终汇报任务数、逐 Thread 路由、模型分布、升级/重试、采纳结果、归档情况和未解决风险。
 
 ## 硬性边界
 
-- 自动路由只使用 `gpt-5.6-luna` 与 `gpt-5.6-sol`。精确模型 ID 和推理强度以 [路由策略](references/routing-policy.md) 为唯一事实源。
+- 默认自动路由使用 `gpt-5.6-terra / max` 与 `gpt-5.6-sol / max`。`gpt-5.6-luna` 只保留为机械提取或边界清晰专项的非默认路由；精确模型 ID 和推理强度以 [路由策略](references/routing-policy.md) 为唯一事实源。
 - `create_thread` / `send_message_to_thread` 工具描述中的“支持模型”列表只能用于接口说明，不能覆盖本 Skill 的路由策略。
-- 禁止自动回退到 `gpt-5.5`、`gpt-5.4`、`gpt-5.4-mini` 或 `gpt-5.3-codex-spark`。如果 Luna / Sol 创建被运行时拒绝，停止派遣并报告模型目录冲突。
+- 禁止自动回退到 `gpt-5.5`、`gpt-5.4`、`gpt-5.4-mini` 或 `gpt-5.3-codex-spark`。如果策略选定的 Terra、Sol 或专项 Luna 创建被运行时拒绝，停止派遣并报告模型目录冲突。
 - Worker 永不使用 Ultra，永不继续派生任务。
-- Terra 默认不参与路由；只有用户明确要求或有任务证据时才可使用。
+- `gpt-5.6-terra / max` 是默认 Worker 路由；`gpt-5.6-sol / max` 是默认关键任务与升级路由。
 - 主 Agent 不切换自己的模型，不把后台任务伪称为原生 Subagent 或预制 Agent Type。
 - 外部发布、发送、付款、删除、账户和生产变更始终由主 Agent 在用户授权范围内执行；Worker 只准备材料。
 - App 后台任务工具不可用、项目无法安全定位或文件所有权无法隔离时，停止委派并在主任务内完成。

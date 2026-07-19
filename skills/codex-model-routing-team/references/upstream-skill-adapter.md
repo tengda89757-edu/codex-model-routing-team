@@ -42,10 +42,10 @@
 researcher_count + 1 verifier + 1 reviewer + retry_reserve <= 8
 ```
 
-- researcher：默认 2-4 个，Luna X High；机械抽取可用 Luna High。
-- verifier：1 个，Luna X High，在 draft 存在后创建。
-- reviewer：1 个，Sol High，在 cited 存在并通过检查后创建。
-- FATAL 复审：最多一次 Sol X High，使用 retry reserve。
+- researcher：默认 2-4 个，Terra Max；机械抽取可用专项 Luna High。
+- verifier：1 个，Terra Max，在 draft 存在后创建。
+- reviewer：1 个，Sol Max，在 cited 存在并通过检查后创建。
+- FATAL 独立复审：最多新建一次 Sol Max，使用 retry reserve。
 - 所有任务绑定包含 `01_项目/调研` 的 vault project。
 - 每个 researcher 写唯一的 T1/T2/T3/T4 文件。
 

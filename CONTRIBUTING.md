@@ -1,6 +1,6 @@
 # Contributing
 
-Open Issues and pull requests in this repository. Standalone Skill repositories are compatibility mirrors and do not accept source changes.
+Open Issues and pull requests in this repository. Keep changes focused on the Codex model-routing Skill and its documentation.
 
 ## Pull requests
 
@@ -13,16 +13,8 @@ Open Issues and pull requests in this repository. Standalone Skill repositories 
 ## Local validation
 
 ```bash
-npm ci
-PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests -v
-PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s skills/codex-doctor/tests -v
-PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s skills/skill-open-sourcer/tests -v
-npm ci --prefix skills/wechat-article-search
-npm test --prefix skills/wechat-article-search
-npm ci --prefix skills/wechat-styler
-npm test --prefix skills/wechat-styler
+PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s skills/codex-model-routing-team/tests -v
 npx --no-install skills add . --list
-python3 skills/skill-open-sourcer/scripts/portfolio.py audit --repo . --strict
 ```
 
 Default CI has no credentials and does not run live-network checks.
